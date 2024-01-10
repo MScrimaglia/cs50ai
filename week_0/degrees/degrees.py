@@ -62,11 +62,6 @@ def main():
     load_data(directory)
     print("Data loaded.")
 
-    """ print(people)
-    print(movies)
-    print(names) """
-
-
     source = person_id_for_name(input("Name: "))
     if source is None:
         sys.exit("Person not found.")
