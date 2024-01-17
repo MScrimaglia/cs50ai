@@ -130,6 +130,9 @@ def minimax(board):
     if terminal(board):
         return None
     
+    if board == initial_state():
+        return (0,0)
+    
     def max_value(state):
         if terminal(state):
             return utility(state)
