@@ -59,7 +59,7 @@ def result(board, action):
     cell = action[1]
     result = copy.deepcopy(board)
 
-    if board[row][cell] != EMPTY:
+    if board[row][cell] != EMPTY or row not in range(0,3) or cell not in range(0,3):
         raise RuntimeError
 
     result[row][cell] = player(board)
