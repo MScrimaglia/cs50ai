@@ -19,11 +19,12 @@ def initial_state():
             [EMPTY, EMPTY, EMPTY],
             [EMPTY, EMPTY, EMPTY]]
 
+
 def player(board):
     """
     Returns player who has the next turn on a board.
     """
-    x_count =  0
+    x_count = 0
     o_count = 0
 
     for row in board:
@@ -44,8 +45,8 @@ def actions(board):
     """
     res = set()
 
-    for row_index in range(0,3):
-        for cell_index in range(0,3):
+    for row_index in range(0, 3):
+        for cell_index in range(0, 3):
             if board[row_index][cell_index] == EMPTY:
                 res.add((row_index, cell_index))
 
@@ -60,7 +61,7 @@ def result(board, action):
     cell = action[1]
     result = copy.deepcopy(board)
 
-    if board[row][cell] != EMPTY or row not in range(0,3) or cell not in range(0,3):
+    if board[row][cell] != EMPTY or row not in range(0, 3) or cell not in range(0, 3):
         raise RuntimeError
 
     result[row][cell] = player(board)
@@ -79,14 +80,14 @@ def winner(board):
         return None
     
     def column_winner(board):
-        for column_index in range(0,3):
+        for column_index in range(0, 3):
             if board[0][column_index] == board[1][column_index] == board[2][column_index] != None:
                 return board[0][column_index]
         return None
     
     def diagonal_winner(board):
         if (board[0][0] == board[1][1] == board[2][2] != None or
-            board[0][2] == board[1][1] == board[2][0] != None):
+                board[0][2] == board[1][1] == board[2][0] != None):
             return board[1][1]
         return None
     
@@ -132,8 +133,7 @@ def minimax(board):
         return None
     
     if board == initial_state():
-        return (0,0)
-    
+        return (0, 0)
     
     def max_value(state, alpha, beta):
         if terminal(state):
