@@ -4,6 +4,7 @@ Tic Tac Toe Player
 
 import math
 import copy
+from datetime import datetime
 
 X = "X"
 O = "O"
@@ -133,20 +134,27 @@ def minimax(board):
     if board == initial_state():
         return (0,0)
     
-    def max_value(state):
+    
+    def max_value(state, alpha, beta):
         if terminal(state):
             return utility(state)
         v = -math.inf
         for action in actions(state):
-            v = max(v, min_value(result(state, action)))
+            v = max(v, min_value(result(state, action), alpha, beta))
+            alpha = max(alpha, v)
+            if beta <= alpha:
+                return v
         return v
     
-    def min_value(state):
+    def min_value(state, alpha, beta):
         if terminal(state):
             return utility(state)
         v = math.inf
         for action in actions(state):
-            v = min(v, max_value(result(state, action)))
+            v = min(v, max_value(result(state, action), alpha, beta))
+            beta = min(beta, v)
+            if beta <= alpha:
+                return v
         return v
     
     optimal_action = None
@@ -159,14 +167,17 @@ def minimax(board):
         maximize = False
         res_utility = math.inf
 
+    alpha = -math.inf
+    beta = math.inf
+
     for action in actions(board):
         if maximize:
-            action_max_value = min_value(result(board, action))
+            action_max_value = min_value(result(board, action), alpha, beta)
             if action_max_value > res_utility:
                 res_utility = action_max_value
                 optimal_action = action
         else:
-            action_min_value = max_value(result(board, action))
+            action_min_value = max_value(result(board, action), alpha, beta)
             if action_min_value < res_utility:
                 res_utility = action_min_value
                 optimal_action = action
