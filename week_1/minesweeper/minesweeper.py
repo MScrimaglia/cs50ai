@@ -114,9 +114,7 @@ class Sentence():
         Returns the set of all cells in self.cells known to be safe.
         """
         if self.count == 0:
-            print('SAFE')
             return self.cells
-        print('UNKNOWN')
         return set()
 
     def mark_mine(self, cell):
@@ -194,41 +192,36 @@ class MinesweeperAI():
             self.knowledge.remove(sentence)
             return True
         return False
+    
+    def add_sentence(self, sentence):
+        self.mines = self.mines.union(sentence.known_mines())
+        self.safes = self.safes.union(sentence.known_safes())
+        self.knowledge.append(sentence)
 
     def update_knowledge(self):
-        print('UPDATING KNOWLEDGE')
         for sentence in self.knowledge:
 
             modified_sentence = False
 
             for mine in self.mines:
                 if mine in sentence.cells:
-                    print('MINE')
-                    print(mine)
                     self.mines.add(mine)
                     sentence.mark_mine(mine)
                     modified_sentence = True
 
             for safe in self.safes:
                 if safe in sentence.cells:
-                    print('SAFE')
-                    print(safe)
                     self.safes.add(safe)
                     sentence.mark_safe(safe)
                     modified_sentence = True
             
             if self.check_sentence(sentence):
-                print('CHECKED')
-                print('MODIFIED')
-                print(sentence)
                 return self.update_knowledge()
 
             for subsentence in self.knowledge:
                 if subsentence == sentence:
                     continue
                 if subsentence.cells.issubset(sentence.cells) and len(subsentence.cells) > 0:
-                    print('SUBSET FOUND')
-                    print(subsentence)
                     sentence.cells = sentence.cells - subsentence.cells
                     sentence.count = sentence.count - subsentence.count
                     modified_sentence = True
@@ -237,8 +230,6 @@ class MinesweeperAI():
                 modified_sentence = True
 
             if modified_sentence:
-                print('MODIFIED')
-                print(sentence)
                 return self.update_knowledge()
 
     def add_knowledge(self, cell, count):
@@ -276,20 +267,11 @@ class MinesweeperAI():
         # Create new sentence with the number of nearby cells which are mines
         new_sentence = Sentence(nearby_cells, count)
 
-        # Update the new sentence based on previous knowledge
-                
-        for sentence in self.knowledge:
-            if sentence.cells.issubset(new_sentence.cells):
-                new_sentence.cells = new_sentence.cells - sentence.cells
-                new_sentence.count = new_sentence.count - sentence.count
+        # Add new sentence to knowledge
+        self.add_sentence(new_sentence)
 
         # Update previous knowledge based on new knowledge
         self.update_knowledge()
-        
-        # Add new sentence to knowledge
-        self.mines = self.mines.union(new_sentence.known_mines())
-        self.safes = self.safes.union(new_sentence.known_safes())
-        self.knowledge.append(new_sentence)
 
     def make_safe_move(self):
         """
@@ -300,17 +282,8 @@ class MinesweeperAI():
         This function may use the knowledge in self.mines, self.safes
         and self.moves_made, but should not modify any of those values.
         """
-        print('SAFES')
-        print(self.safes)
-        print('MINES')
-        print(self.mines)
-        print('KNOWLEDGE')
-        for sentence in self.knowledge:
-            print(sentence.__str__())
         for cell in self.safes:
             if cell not in self.moves_made:
-                print("NEXT MOVE: " + str(cell))
-                print("=========================================")
                 return cell
         return None
 
@@ -327,7 +300,6 @@ class MinesweeperAI():
             j = random.randrange(self.width)
             cell = (i, j)
             if cell not in self.moves_made and cell not in self.mines:
-                print("=========================================")
                 return cell
             counter -= 1
         return None
