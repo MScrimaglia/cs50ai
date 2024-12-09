@@ -177,6 +177,7 @@ class MinesweeperAI():
             if cell in sentence.cells:
                 sentence.mark_safe(cell)
 
+    # Check if a sentence has known mines or safes and returns True if so
     def check_sentence(self, sentence):
         if len(sentence.cells) == sentence.count:
             while len(sentence.cells) > 0:
@@ -184,12 +185,61 @@ class MinesweeperAI():
                 self.mines.add(mine)
                 sentence.mark_mine(mine)
             self.knowledge.remove(sentence)
+            return True
         elif sentence.count == 0:
             while len(sentence.cells) > 0:
                 safe = sentence.cells.pop()
                 self.safes.add(safe)
                 sentence.mark_safe(safe)
             self.knowledge.remove(sentence)
+            return True
+        return False
+
+    def update_knowledge(self):
+        print('UPDATING KNOWLEDGE')
+        for sentence in self.knowledge:
+
+            modified_sentence = False
+
+            for mine in self.mines:
+                if mine in sentence.cells:
+                    print('MINE')
+                    print(mine)
+                    self.mines.add(mine)
+                    sentence.mark_mine(mine)
+                    modified_sentence = True
+
+            for safe in self.safes:
+                if safe in sentence.cells:
+                    print('SAFE')
+                    print(safe)
+                    self.safes.add(safe)
+                    sentence.mark_safe(safe)
+                    modified_sentence = True
+            
+            if self.check_sentence(sentence):
+                print('CHECKED')
+                print('MODIFIED')
+                print(sentence)
+                return self.update_knowledge()
+
+            for subsentence in self.knowledge:
+                if subsentence == sentence:
+                    continue
+                if subsentence.cells.issubset(sentence.cells) and len(subsentence.cells) > 0:
+                    print('SUBSET FOUND')
+                    print(subsentence)
+                    sentence.cells = sentence.cells - subsentence.cells
+                    sentence.count = sentence.count - subsentence.count
+                    modified_sentence = True
+
+            if self.check_sentence(sentence):
+                modified_sentence = True
+
+            if modified_sentence:
+                print('MODIFIED')
+                print(sentence)
+                return self.update_knowledge()
 
     def add_knowledge(self, cell, count):
         """
@@ -233,26 +283,7 @@ class MinesweeperAI():
                 new_sentence.count = new_sentence.count - sentence.count
 
         # Update previous knowledge based on new knowledge
-        for sentence in self.knowledge:
-
-            for mine in new_sentence.known_mines():
-                if mine in sentence.cells:
-                    self.mines.add(mine)
-                    sentence.mark_mine(mine)
-
-            for safe in new_sentence.known_safes():
-                if safe in sentence.cells:
-                    self.safes.add(safe)
-                    sentence.mark_safe(safe)
-
-            if new_sentence.cells.issubset(sentence.cells):
-                sentence.cells = sentence.cells - new_sentence.cells
-                sentence.count = sentence.count - new_sentence.count
-
-            self.check_sentence(sentence)
-
-        for sentence in self.knowledge:
-            self.check_sentence(sentence)
+        self.update_knowledge()
         
         # Add new sentence to knowledge
         self.mines = self.mines.union(new_sentence.known_mines())
@@ -278,6 +309,7 @@ class MinesweeperAI():
         for cell in self.safes:
             if cell not in self.moves_made:
                 print("NEXT MOVE: " + str(cell))
+                print("=========================================")
                 return cell
         return None
 
@@ -294,6 +326,7 @@ class MinesweeperAI():
             j = random.randrange(self.width)
             cell = (i, j)
             if cell not in self.moves_made and cell not in self.mines:
+                print("=========================================")
                 return cell
             counter -= 1
         return None
