@@ -262,7 +262,7 @@ class MinesweeperAI():
                     continue
                 # Add to set of nearby cells if cell in bounds
                 if 0 <= i < self.height and 0 <= j < self.width:
-                    nearby_cells.add((i,j))
+                    nearby_cells.add((i, j))
         
         # Create new sentence with the number of nearby cells which are mines
         new_sentence = Sentence(nearby_cells, count)
