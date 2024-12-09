@@ -257,6 +257,7 @@ class MinesweeperAI():
                if they can be inferred from existing knowledge
         """
         self.moves_made.add(cell)
+        self.safes.add(cell)
         nearby_cells = set()
 
         # Loop over all cells within one row and column
